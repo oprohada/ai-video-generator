@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Video Generator - Free Video Creation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        header h1 {
+            font-size: 2.8em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #333;
+            font-size: 1.05em;
+        }
+
+        textarea, input[type="number"], input[type="range"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1em;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+
+        textarea:focus, input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 150px;
+        }
+
+        .range-container {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            height: 8px;
+            padding: 0;
+            cursor: pointer;
+        }
+
+        .range-value {
+            min-width: 60px;
+            text-align: center;
+            font-weight: 600;
+            color: #667eea;
+            background: #f0f0f0;
+            padding: 8px 12px;
+            border-radius: 8px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        button {
+            padding: 14px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            flex: 1;
+            max-width: 250px;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .status-section {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        .status-section.active {
+            display: block;
+        }
+
+        .status-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .status-text {
+            font-weight: 600;
+            color: #333;
+            font-size: 1.05em;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s;
+            border-radius: 10px;
+        }
+
+        .progress-text {
+            text-align: center;
+            font-weight: 600;
+            color: #667eea;
+            margin-top: 10px;
+        }
+
+        .status-message {
+            color: #666;
+            margin-top: 10px;
+            font-size: 0.95em;
+        }
+
+        .download-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #ddd;
+            display: none;
+        }
+
+        .download-section.show {
+            display: block;
+        }
+
+        .download-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 14px 30px;
+            text-decoration: none;
+            border-radius: 10px;
+            display: inline-block;
+            font-weight: 600;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: none;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(40, 167, 69, 0.3);
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+            border-left: 4px solid #dc3545;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 600px) {
+            .features {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .feature {
+            text-align: center;
+            color: white;
+        }
+
+        .feature-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .feature h3 {
+            margin-bottom: 8px;
+        }
+
+        .feature p {
+            opacity: 0.9;
+            font-size: 0.95em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎬 AI Video Generator</h1>
+            <p>Create stunning videos from text - Completely FREE!</p>
+        </header>
+
+        <div class="card">
+            <div class="error-message" id="errorMessage"></div>
+
+            <form id="videoForm">
+                <div class="form-group">
+                    <label for="text">📝 Your Video Script:</label>
+                    <textarea id="text" placeholder="Write your video script here. The longer and more detailed, the better your video will be!" required></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="duration">⏱️ Video Duration (seconds):</label>
+                        <input type="number" id="duration" min="10" max="120" value="30" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="voiceSpeed">🔊 Voice Speed:</label>
+                        <div class="range-container">
+                            <input type="range" id="voiceSpeed" min="0.5" max="2" step="0.1" value="1.0">
+                            <div class="range-value" id="speedValue">1.0x</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="btn-primary" id="generateBtn">
+                        ✨ Generate Video
+                    </button>
+                </div>
+            </form>
+
+            <div class="status-section" id="statusSection">
+                <div class="status-header">
+                    <div class="spinner"></div>
+                    <div class="status-text" id="statusText">Processing your video...</div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-text"><span id="progressPercent">0</span>%</div>
+                <div class="status-message" id="statusMessage">Initializing...</div>
+
+                <div class="download-section" id="downloadSection">
+                    <p style="color: #28a745; font-weight: 600; margin-bottom: 15px;">✅ Video is ready!</p>
+                    <button class="download-btn" id="downloadBtn" onclick="downloadVideo()">
+                        ⬇️ Download Video
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">🤖</div>
+                <h3>AI Powered</h3>
+                <p>Advanced AI generates beautiful scenes</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🎯</div>
+                <h3>Fast & Easy</h3>
+                <p>Create professional videos in minutes</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">💰</div>
+                <h3>100% Free</h3>
+                <p>No subscriptions or hidden costs</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('videoForm');
+        const generateBtn = document.getElementById('generateBtn');
+        const statusSection = document.getElementById('statusSection');
+        const progressFill = document.getElementById('progressFill');
+        const progressPercent = document.getElementById('progressPercent');
+        const statusMessage = document.getElementById('statusMessage');
+        const downloadSection = document.getElementById('downloadSection');
+        const errorMessage = document.getElementById('errorMessage');
+        const voiceSpeedInput = document.getElementById('voiceSpeed');
+        const speedValue = document.getElementById('speedValue');
+        let currentJobId = null;
+
+        // Update speed display
+        voiceSpeedInput.addEventListener('input', (e) => {
+            speedValue.textContent = e.target.value + 'x';
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const text = document.getElementById('text').value.trim();
+            const duration = document.getElementById('duration').value;
+            const voiceSpeed = document.getElementById('voiceSpeed').value;
+
+            if (!text || text.length < 5) {
+                showError('Please write at least 5 characters');
+                return;
+            }
+
+            generateBtn.disabled = true;
+            errorMessage.classList.remove('show');
+            statusSection.classList.add('active');
+            downloadSection.classList.remove('show');
+            progressFill.style.width = '0%';
+            progressPercent.textContent = '0';
+
+            try {
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        text,
+                        duration,
+                        voice_speed: voiceSpeed
+                    })
+                });
+
+                if (!response.ok) {
+                    const data = await response.json();
+                    throw new Error(data.error || 'Generation failed');
+                }
+
+                const data = await response.json();
+                currentJobId = data.job_id;
+                pollStatus();
+
+            } catch (error) {
+                showError(error.message);
+                generateBtn.disabled = false;
+                statusSection.classList.remove('active');
+            }
+        });
+
+        function pollStatus() {
+            const maxAttempts = 600; // 10 minutes max
+            let attempts = 0;
+
+            const interval = setInterval(async () => {
+                attempts++;
+
+                try {
+                    const response = await fetch(`/api/status/${currentJobId}`);
+                    const data = await response.json();
+
+                    progressFill.style.width = data.progress + '%';
+                    progressPercent.textContent = data.progress;
+                    statusMessage.textContent = data.message || 'Processing...';
+
+                    if (data.status === 'completed') {
+                        clearInterval(interval);
+                        downloadSection.classList.add('show');
+                        generateBtn.disabled = false;
+                    } else if (data.status === 'error') {
+                        clearInterval(interval);
+                        showError(data.error || 'Video generation failed');
+                        statusSection.classList.remove('active');
+                        generateBtn.disabled = false;
+                    }
+
+                } catch (error) {
+                    console.error('Status check failed:', error);
+                    if (attempts >= maxAttempts) {
+                        clearInterval(interval);
+                        showError('Generation timeout. Please try again.');
+                        statusSection.classList.remove('active');
+                        generateBtn.disabled = false;
+                    }
+                }
+            }, 2000);
+        }
+
+        function downloadVideo() {
+            if (currentJobId) {
+                const link = document.createElement('a');
+                link.href = `/api/download/${currentJobId}`;
+                link.download = `video_${currentJobId}.mp4`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }
+
+        function showError(message) {
+            errorMessage.textContent = '❌ ' + message;
+            errorMessage.classList.add('show');
+        }
+    </script>
+</body>
+</html>
